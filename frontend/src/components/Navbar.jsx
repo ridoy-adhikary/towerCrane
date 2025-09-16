@@ -18,7 +18,7 @@ const Navbar = () => {
         <img 
           src="/assets/logo.png"
           alt="logo"
-          className="w-36 h-15 object-contain cursor-pointer"
+          className="w-30 h-10 object-contain cursor-pointer"
         />
       </div>
 
