@@ -6,7 +6,7 @@ const Navbar = () => {
 
   const menuItems = [
     { name: "HOME", path: "/" },
-    { name: "COLLECTION", path: "/collection" },
+    { name: "PPRODUCT", path: "/product" },
     { name: "ABOUT", path: "/about" },
     { name: "CONTACT", path: "/contact" },
   ];
@@ -15,10 +15,10 @@ const Navbar = () => {
     <nav className="flex items-center justify-between py-5 px-6 font-medium relative">
       {/* Logo */}
       <div className="flex items-center">
-        <img
+        <img 
           src="/assets/logo.png"
           alt="logo"
-          className="w-36 h-auto object-contain cursor-pointer"
+          className="w-36 h-15 object-contain cursor-pointer"
         />
       </div>
 
@@ -52,7 +52,8 @@ const Navbar = () => {
           />
           <div className="absolute right-0 mt-3 w-36 hidden group-hover:flex flex-col gap-2 p-3 bg-slate-100 text-gray-500 rounded shadow-lg">
             <p className="cursor-pointer hover:text-black">My Profile</p>
-            <p className="cursor-pointer hover:text-black">Order</p>
+            <p className="cursor-pointer hover:text-black">Login/Register</p>
+          
             <p className="cursor-pointer hover:text-black">Logout</p>
           </div>
         </div>
