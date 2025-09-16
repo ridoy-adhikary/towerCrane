@@ -12,7 +12,7 @@ const Navbar = () => {
   ];
 
   return (
-    <nav className="flex items-center justify-between py-5 px-6 font-medium relative">
+    <nav className="flex items-center bg-blue-400 justify-between py-5 px-6 font-medium relative">
       {/* Logo */}
       <div className="flex items-center">
         <img 
@@ -21,6 +21,8 @@ const Navbar = () => {
           className="w-30 h-10 object-contain cursor-pointer"
         />
       </div>
+
+      
 
       {/* Desktop Menu */}
       <ul className="hidden sm:flex gap-8 text-gray-700">
@@ -57,6 +59,18 @@ const Navbar = () => {
             <p className="cursor-pointer hover:text-black">Logout</p>
           </div>
         </div>
+
+        {/* Cart */}
+        <Link to="/cart" className="relative">
+          <img
+            src="/assets/cart.png"
+            alt="Cart"
+            className="w-5 h-5 cursor-pointer"
+          />
+          <span className="absolute -right-1 -bottom-1 w-4 h-4 text-[8px] flex items-center justify-center bg-black text-white rounded-full">
+            10
+          </span>
+        </Link>
 
         {/* Mobile Menu Icon */}
         <img
