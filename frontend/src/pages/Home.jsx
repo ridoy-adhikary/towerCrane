@@ -1,52 +1,45 @@
 import React from "react";
-import Navbar from "../components/Navbar.jsx";
 
 export default function Home() {
   return (
     <div className="bg-gray-50 text-slate-900 min-h-screen flex flex-col">
-      {/* Navbar at the top */}
-      <header className="sticky top-0 z-50 bg-white shadow-md">
-        <Navbar />
-      </header>
-
       {/* Hero Section */}
-<section className="relative flex min-h-[90vh] items-center justify-center text-white overflow-hidden">
-  {/* Background Video */}
-  <video
-    autoPlay
-    loop
-    muted
-    playsInline
-    className="absolute inset-0 w-full h-full object-cover"
-  >
-    <source src="/assets/tower.mp4" type="video/mp4" />
-    Your browser does not support the video tag.
-  </video>
+      <section className="relative flex min-h-[90vh] items-center justify-center text-white overflow-hidden z-0">
+        {/* Background Video */}
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover"
+        >
+          <source src="/assets/tower.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
 
-  {/* Overlay to darken video (like your linear-gradient) */}
-  <div className="absolute inset-0 bg-black/60"></div>
+        {/* Overlay to darken video */}
+        <div className="absolute inset-0 bg-black/60"></div>
 
-  {/* Content (same as before) */}
-  <div className="container mx-auto px-6 text-center relative z-10">
-    <h1 className="mb-4 text-5xl font-extrabold">
-      Find Your Heavy Equipment
-    </h1>
-    <p className="mb-8 text-lg text-gray-200">
-      Search cranes, trucks, and construction machinery.
-    </p>
-    <div className="relative mx-auto max-w-xl">
-      <input
-        type="text"
-        placeholder="Search cranes, equipment..."
-        className="w-full rounded-lg p-4 pr-32 text-gray-800 shadow-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
-      />
-      <button className="absolute right-2 top-1/2 -translate-y-1/2 transform rounded-lg bg-amber-500 px-6 py-2 text-white font-semibold hover:scale-105 transition">
-        Search
-      </button>
-    </div>
-  </div>
-</section>
-
+        {/* Content */}
+        <div className="container mx-auto px-6 text-center relative z-10">
+          <h1 className="mb-4 text-5xl font-extrabold">
+            Find Your Heavy Equipment
+          </h1>
+          <p className="mb-8 text-lg text-gray-200">
+            Search cranes, trucks, and construction machinery.
+          </p>
+          <div className="relative mx-auto max-w-xl">
+            <input
+              type="text"
+              placeholder="Search cranes, equipment..."
+              className="w-full rounded-lg p-4 pr-32 text-gray-800 shadow-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
+            />
+            <button className="absolute right-2 top-1/2 -translate-y-1/2 transform rounded-lg bg-amber-500 px-6 py-2 text-white font-semibold hover:scale-105 transition">
+              Search
+            </button>
+          </div>
+        </div>
+      </section>
 
       {/* Featured Products */}
       <section className="py-16 flex-1">

@@ -10,16 +10,24 @@ const Register = () => {
   const handleRegister = async e => {
     e.preventDefault();
     try {
-      await axios.post("/auth/register", form);
+      const res = await axios.post("/auth/register", form);
+      const userData = res.data; // {_id, name, email, token, role}
+
+      // Save user to localStorage
+      localStorage.setItem("user", JSON.stringify(userData));
+
       alert("Registration successful!");
-      navigate("/");
+
+      // Redirect based on role
+      if (userData.role === "admin") navigate("/dashboard");
+      else navigate("/profile");
     } catch (err) {
       alert(err.response?.data?.message || "Registration failed");
     }
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-indigo-200 via-purple-600 to-pink-100 p-6">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-indigo-900">
       <div className="w-full max-w-md p-8 bg-/90 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20">
         <h2 className="text-4xl font-extrabold text-center text-gray-800 mb-2">
           Create Account
@@ -71,7 +79,7 @@ const Register = () => {
           {/* Submit */}
           <button
             type="submit"
-            className="w-full bg-gradient-to-r from-purple-600 to-pink-500 text-white py-3 rounded-lg font-bold text-lg shadow-lg hover:scale-[1.02] hover:shadow-xl transition-transform duration-200"
+            className="w-full bg-gradient-to-r from-purple-400 to-pink-200 text-white py-3 rounded-lg font-bold text-lg shadow-lg hover:scale-[1.02] hover:shadow-xl transition-transform duration-200"
           >
             Sign Up
           </button>

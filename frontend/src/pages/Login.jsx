@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import axios from "../api/axiosConfig.js";
 
 const Login = () => {
@@ -11,15 +11,21 @@ const Login = () => {
     e.preventDefault();
     try {
       const res = await axios.post("/auth/login", { email, password });
-      localStorage.setItem("token", res.data.token);
-      navigate("/dashboard");
+      const userData = res.data; // {_id, name, email, token, role}
+
+      // Save user to localStorage
+      localStorage.setItem("user", JSON.stringify(userData));
+
+      // Redirect based on role
+      if (userData.role === "admin") navigate("/dashboard");
+      else navigate("/profile");
     } catch (err) {
       alert(err.response?.data?.message || "Login failed");
     }
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-indigo-900 ">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-indigo-900">
       <div className="w-full max-w-md p-8 bg-/90 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/90">
         
         {/* Title */}
@@ -61,7 +67,7 @@ const Login = () => {
           {/* Submit */}
           <button
             type="submit"
-            className="w-full bg-gradient-to-r from-purple-700 text-white py-3 rounded-lg font-bold text-lg shadow-lg hover:scale-[1.02] hover:shadow-xl transition-transform duration-200"
+            className="w-full bg-gradient-to-r from-purple-400 to-pink-20 text-white py-3 rounded-lg font-bold text-lg shadow-lg hover:scale-[1.02] hover:shadow-xl transition-transform duration-200"
           >
             Sign In
           </button>
@@ -70,9 +76,9 @@ const Login = () => {
         {/* Extra link */}
         <p className="text-center text-gray-600 mt-6">
           Don’t have an account?{" "}
-          <a href="/register" className="text-purple-600 font-semibold hover:underline">
+          <Link to="/register" className="text-purple-600 font-semibold hover:underline">
             Sign Up
-          </a>
+          </Link>
         </p>
       </div>
     </div>

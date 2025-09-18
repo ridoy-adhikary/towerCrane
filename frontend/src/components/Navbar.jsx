@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 
-const Navbar = () => {
+const Navbar = ({ user }) => {
   const [menuVisible, setMenuVisible] = useState(false);
 
   const menuItems = [
@@ -11,8 +11,11 @@ const Navbar = () => {
     { name: "CONTACT", path: "/contact" },
   ];
 
+  // Determine profile link based on user role
+  const profileLink = user?.role === "admin" ? "/dashboard" : "/profile";
+
   return (
-    <nav className="flex items-center bg-blue-400 justify-between py-5 px-6 font-medium relative">
+    <nav className="flex items-center bg-blue-400 justify-between py-5 px-6 font-medium relative z-50">
       {/* Logo */}
       <div className="flex items-center">
         <img 
@@ -21,8 +24,6 @@ const Navbar = () => {
           className="w-30 h-10 object-contain cursor-pointer"
         />
       </div>
-
-      
 
       {/* Desktop Menu */}
       <ul className="hidden sm:flex gap-8 text-gray-700">
@@ -52,11 +53,30 @@ const Navbar = () => {
             alt="Profile"
             className="w-5 h-5 cursor-pointer"
           />
-          <div className="absolute right-0 mt-3 w-36 hidden group-hover:flex flex-col gap-2 p-3 bg-slate-100 text-gray-500 rounded shadow-lg">
-            <p className="cursor-pointer hover:text-black">My Profile</p>
-            <p className="cursor-pointer hover:text-black">Login/Register</p>
-          
-            <p className="cursor-pointer hover:text-black">Logout</p>
+          <div className="absolute right-0 top-full mt-0 w-36 hidden group-hover:flex flex-col gap-2 p-3 bg-slate-100 text-gray-500 rounded shadow-lg">
+            {/* Dynamic My Profile */}
+            {user ? (
+  // If user is logged in, show My Profile and Logout
+  <>
+    <Link to={profileLink} className="cursor-pointer hover:text-black">
+      My Profile
+    </Link>
+    <p className="cursor-pointer hover:text-black">Logout</p>
+  </>
+) : (
+  // If no user, show only Login/Register
+  <Link to="/register" className="cursor-pointer hover:text-black">
+    Login/Register
+  </Link>
+)}
+
+
+            {/* Logout only if user is logged in */}
+            {user && (
+              <p className="cursor-pointer hover:text-black">
+                Logout
+              </p>
+            )}
           </div>
         </div>
 
@@ -68,7 +88,7 @@ const Navbar = () => {
             className="w-5 h-5 cursor-pointer"
           />
           <span className="absolute -right-1 -bottom-1 w-4 h-4 text-[8px] flex items-center justify-center bg-black text-white rounded-full">
-            10
+            5
           </span>
         </Link>
 
