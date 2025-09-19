@@ -7,7 +7,7 @@ const Header = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("token");
-    navigate("/");
+    navigate("/login"); // redirect to login after logout
   };
 
   const menuItems = [
@@ -57,7 +57,13 @@ const Header = () => {
             className="w-5 h-5 cursor-pointer"
           />
           <div className="absolute right-0 mt-3 w-36 hidden group-hover:flex flex-col gap-2 p-3 bg-slate-100 text-gray-500 rounded shadow-lg">
-            <p className="cursor-pointer hover:text-black">My Profile</p>
+            {/* ✅ Link instead of plain <p> */}
+            <Link
+              to="/dashboard"
+              className="cursor-pointer hover:text-black"
+            >
+              My Profile
+            </Link>
             <button
               onClick={handleLogout}
               className="text-left cursor-pointer hover:text-red-600"

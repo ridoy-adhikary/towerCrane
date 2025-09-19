@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, Outlet } from "react-router-dom";
 import axios from "./api/axiosConfig.js";
 
 // Pages
@@ -18,6 +18,7 @@ import ProductDetail from "./pages/ProductDetail.jsx";
 
 // Components
 import Navbar from "./components/Navbar.jsx";
+import Header from "./components/Header.jsx";
 
 function App() {
   const [user, setUser] = useState(null);
@@ -49,17 +50,38 @@ function App() {
     setCart((prevCart) => [...prevCart, product]);
   };
 
-  return (
+  // Public layout
+  const PublicLayout = () => (
     <>
-      {/* Navbar */}
-      <Navbar user={user} cart={{ products: cart }} />
+      <Navbar user={user} setUser={setUser} cart={{ products: cart }} />
+      <Outlet />
+    </>
+  );
 
-      {/* Routes */}
-      <Routes>
-        {/* Public Routes */}
+  // Admin layout
+  const AdminLayout = () => (
+    <>
+      <Header />
+      <Outlet />
+    </>
+  );
+
+  return (
+    
+    <Routes>
+
+
+      {/* Public Routes */}
+      <Route element={<PublicLayout />}>
         <Route path="/" element={<Home />} />
-        <Route path="/login" element={!user ? <Login /> : <Navigate to="/login" />} />
-        <Route path="/register" element={!user ? <Register /> : <Navigate to="/" />} />
+        <Route
+          path="/login"
+          element={!user ? <Login setUser={setUser} /> : <Navigate to="/" />}
+        />
+        <Route
+          path="/register"
+          element={!user ? <Register setUser={setUser} /> : <Navigate to="/" />}
+        />
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
         <Route
@@ -80,8 +102,10 @@ function App() {
           path="/cart"
           element={user?.role === "buyer" ? <Cart cart={cart} /> : <Navigate to="/" />}
         />
+      </Route>
 
-        {/* Admin Routes */}
+      {/* Admin Routes */}
+      <Route element={<AdminLayout />}>
         <Route
           path="/dashboard"
           element={user?.role === "admin" ? <Dashboard /> : <Navigate to="/" />}
@@ -94,11 +118,11 @@ function App() {
           path="/edit-product/:id"
           element={user?.role === "admin" ? <EditProduct /> : <Navigate to="/" />}
         />
+      </Route>
 
-        {/* Fallback */}
-        <Route path="*" element={<Navigate to="/" />} />
-      </Routes>
-    </>
+      {/* Fallback */}
+      <Route path="*" element={<Navigate to="/" />} />
+    </Routes>
   );
 }
 

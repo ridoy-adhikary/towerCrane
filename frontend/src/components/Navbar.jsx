@@ -1,12 +1,13 @@
 import React, { useState } from "react";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 
-const Navbar = ({ user }) => {
+const Navbar = ({ user, setUser }) => {
   const [menuVisible, setMenuVisible] = useState(false);
+  const navigate = useNavigate();
 
   const menuItems = [
     { name: "HOME", path: "/" },
-    { name: "PPRODUCT", path: "/product" },
+    { name: "PRODUCT", path: "/product" },
     { name: "ABOUT", path: "/about" },
     { name: "CONTACT", path: "/contact" },
   ];
@@ -14,11 +15,18 @@ const Navbar = ({ user }) => {
   // Determine profile link based on user role
   const profileLink = user?.role === "admin" ? "/dashboard" : "/profile";
 
+  // Handle logout
+  const handleLogout = () => {
+    localStorage.removeItem("token"); // clear JWT
+    setUser(null); // clear user from state
+    navigate("/login"); // redirect to login
+  };
+
   return (
     <nav className="flex items-center bg-blue-400 justify-between py-5 px-6 font-medium relative z-50">
       {/* Logo */}
       <div className="flex items-center">
-        <img 
+        <img
           src="/assets/logo.png"
           alt="logo"
           className="w-30 h-10 object-contain cursor-pointer"
@@ -44,7 +52,7 @@ const Navbar = ({ user }) => {
         ))}
       </ul>
 
-      {/* Right Section: Profile + Menu Icon */}
+      {/* Right Section: Profile + Cart + Menu Icon */}
       <div className="flex items-center gap-6">
         {/* Profile Dropdown */}
         <div className="relative group">
@@ -54,28 +62,23 @@ const Navbar = ({ user }) => {
             className="w-5 h-5 cursor-pointer"
           />
           <div className="absolute right-0 top-full mt-0 w-36 hidden group-hover:flex flex-col gap-2 p-3 bg-slate-100 text-gray-500 rounded shadow-lg">
-            {/* Dynamic My Profile */}
             {user ? (
-  // If user is logged in, show My Profile and Logout
-  <>
-    <Link to={profileLink} className="cursor-pointer hover:text-black">
-      My Profile
-    </Link>
-    <p className="cursor-pointer hover:text-black">Logout</p>
-  </>
-) : (
-  // If no user, show only Login/Register
-  <Link to="/register" className="cursor-pointer hover:text-black">
-    Login/Register
-  </Link>
-)}
-
-
-            {/* Logout only if user is logged in */}
-            {user && (
-              <p className="cursor-pointer hover:text-black">
-                Logout
-              </p>
+              <>
+                {/* Role-based profile link */}
+                <Link to={profileLink} className="cursor-pointer hover:text-black">
+                  My Profile
+                </Link>
+                <p
+                  onClick={handleLogout}
+                  className="cursor-pointer hover:text-black"
+                >
+                  Logout
+                </p>
+              </>
+            ) : (
+              <Link to="/register" className="cursor-pointer hover:text-black">
+                Login/Register
+              </Link>
             )}
           </div>
         </div>

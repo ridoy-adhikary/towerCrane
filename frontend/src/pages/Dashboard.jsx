@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import axios from "../api/axiosConfig.js";
-import Header from "../components/Header.jsx";
 import ProductCard from "../components/ProductCard.jsx";
 
 const Dashboard = () => {
@@ -27,14 +26,20 @@ const Dashboard = () => {
   }, []);
 
   return (
-    <div>
-      <Header />
-      <div className="p-6 space-y-4">
-        <h2 className="text-3xl font-bold">My Products</h2>
-        {products.length ? products.map(p => (
-          <ProductCard key={p._id} product={p} onDelete={handleDelete} onEdit={() => {}} />
-        )) : <p>No products found.</p>}
-      </div>
+    <div className="p-6 space-y-4">
+      <h2 className="text-3xl font-bold">My Products</h2>
+      {products.length ? (
+        products.map((p) => (
+          <ProductCard
+            key={p._id}
+            product={p}
+            onDelete={handleDelete}
+            onEdit={() => {}}
+          />
+        ))
+      ) : (
+        <p>No products found.</p>
+      )}
     </div>
   );
 };
