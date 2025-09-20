@@ -11,13 +11,13 @@ const Header = () => {
   };
 
   const menuItems = [
-    { name: "Dashboard", path: "/dashboard" },
-    { name: "Add Product", path: "/add-product" },
-    { name: "Edit Products", path: "/my-products" },
+    { name: "DASHBOARD", path: "/dashboard" },
+    { name: "ADD PRODUCT", path: "/add-product" },
+    { name: "EDIT PRODUCT", path: "/my-products" },
   ];
 
   return (
-    <header className="flex items-center bg-blue-400 justify-between py-5 px-6 font-medium relative shadow-md sticky top-0 z-50">
+    <header className="flex items-center bg-yellow-300 justify-between py-5 px-6 font-medium relative z-50">
       {/* Logo / Title */}
       <div className="flex items-center">
         <Link to="/dashboard">
@@ -56,7 +56,7 @@ const Header = () => {
             alt="Profile"
             className="w-5 h-5 cursor-pointer"
           />
-          <div className="absolute right-0 mt-3 w-36 hidden group-hover:flex flex-col gap-2 p-3 bg-slate-100 text-gray-500 rounded shadow-lg">
+          <div className="absolute right-0 mt-0 w-36 hidden group-hover:flex flex-col gap-2 p-3 bg-slate-100 text-gray-500 rounded shadow-lg">
             {/* ✅ Link instead of plain <p> */}
             <Link
               to="/dashboard"

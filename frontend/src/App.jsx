@@ -45,9 +45,27 @@ function App() {
     fetchCart();
   }, []);
 
-  // Function to add product to cart
-  const handleAddToCart = (product) => {
-    setCart((prevCart) => [...prevCart, product]);
+  // Function to add product to cart (with backend call)
+  const handleAddToCart = async (productId) => {
+    if (!user || user.role !== "buyer") {
+      alert("Only buyers can add items to the cart.");
+      return;
+    }
+
+    try {
+      const res = await axios.post(
+        "/cart",
+        { productId, quantity: 1 },
+        {
+          headers: { Authorization: `Bearer ${user.token}` },
+        }
+      );
+      setCart(res.data.products || []);
+      alert("Product added to cart!");
+    } catch (err) {
+      console.error("Failed to add to cart:", err);
+      alert("Could not add product to cart.");
+    }
   };
 
   // Public layout
@@ -67,10 +85,7 @@ function App() {
   );
 
   return (
-    
     <Routes>
-
-
       {/* Public Routes */}
       <Route element={<PublicLayout />}>
         <Route path="/" element={<Home />} />
@@ -100,7 +115,9 @@ function App() {
         />
         <Route
           path="/cart"
-          element={user?.role === "buyer" ? <Cart cart={cart} /> : <Navigate to="/" />}
+          element={
+            user?.role === "buyer" ? <Cart cartItems={cart} /> : <Navigate to="/" />
+          }
         />
       </Route>
 

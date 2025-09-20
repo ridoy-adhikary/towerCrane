@@ -4,8 +4,7 @@ import Cart from "../models/Cart.js";
 export const getCart = async (req, res) => {
   try {
     const cart = await Cart.findOne({ user: req.user._id }).populate("products.product");
-    if (!cart) return res.json({ products: [] });
-    res.json(cart);
+    res.json({ products: cart ? cart.products : [] }); // Always return products array
   } catch (error) {
     res.status(500).json({ message: "Server error" });
   }
@@ -27,15 +26,14 @@ export const addToCart = async (req, res) => {
     );
 
     if (productIndex > -1) {
-      // If product already in cart → update quantity
       cart.products[productIndex].quantity += quantity || 1;
     } else {
-      // Else add new product
       cart.products.push({ product: productId, quantity: quantity || 1 });
     }
 
     await cart.save();
-    res.status(201).json(cart);
+    await cart.populate("products.product");
+    res.status(201).json({ products: cart.products }); // ✅ Always return products
   } catch (error) {
     res.status(500).json({ message: "Server error" });
   }
@@ -54,7 +52,8 @@ export const removeFromCart = async (req, res) => {
     );
 
     await cart.save();
-    res.json(cart);
+    await cart.populate("products.product");
+    res.json({ products: cart.products }); // ✅ Always return products
   } catch (error) {
     res.status(500).json({ message: "Server error" });
   }
