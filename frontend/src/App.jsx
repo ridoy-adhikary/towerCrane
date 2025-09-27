@@ -12,7 +12,7 @@ import Profile from "./pages/Profile.jsx";
 import Cart from "./pages/Cart.jsx";
 import About from "./pages/About.jsx";
 import Contact from "./pages/Contact.jsx";
-import Product from "./pages/Product.jsx";
+import ProductPage from "./pages/ProductPage.jsx";
 import ProductDetail from "./pages/ProductDetail.jsx";
 
 // Components
@@ -42,7 +42,9 @@ function App() {
   }, []);
 
   const handleAddToCart = async (productId) => {
-    if (!user || user.role !== "buyer") return alert("Only buyers can add items to the cart.");
+    if (!user || user.role !== "buyer") {
+      return alert("Only buyers can add items to the cart.");
+    }
     try {
       const res = await axios.post("/cart", { productId, quantity: 1 });
       setCart(res.data.products || []);
@@ -69,23 +71,54 @@ function App() {
 
   return (
     <Routes>
+      {/* Public Routes */}
       <Route element={<PublicLayout />}>
         <Route path="/" element={<Home />} />
-        <Route path="/login" element={!user ? <Login setUser={setUser} /> : <Navigate to="/" />} />
-        <Route path="/register" element={!user ? <Register setUser={setUser} /> : <Navigate to="/" />} />
+        <Route
+          path="/login"
+          element={!user ? <Login setUser={setUser} /> : <Navigate to="/" />}
+        />
+        <Route
+          path="/register"
+          element={!user ? <Register setUser={setUser} /> : <Navigate to="/" />}
+        />
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
-        <Route path="/product" element={<Product user={user} onAddToCart={handleAddToCart} />} />
-        <Route path="/product/:id" element={<ProductDetail user={user} onAddToCart={handleAddToCart} />} />
-        <Route path="/profile" element={user?.role === "buyer" ? <Profile /> : <Navigate to="/" />} />
-        <Route path="/cart" element={user?.role === "buyer" ? <Cart cartItems={cart} /> : <Navigate to="/" />} />
+
+        {/* Product listing & details */}
+        <Route
+          path="/product"
+          element={<ProductPage user={user} onAddToCart={handleAddToCart} />}
+        />
+        <Route
+          path="/product/:id"
+          element={<ProductDetail user={user} onAddToCart={handleAddToCart} />}
+        />
+
+        {/* Buyer-specific routes */}
+        <Route
+          path="/profile"
+          element={user?.role === "buyer" ? <Profile /> : <Navigate to="/" />}
+        />
+        <Route
+          path="/cart"
+          element={user?.role === "buyer" ? <Cart cartItems={cart} /> : <Navigate to="/" />}
+        />
       </Route>
 
+      {/* Admin Routes */}
       <Route element={<AdminLayout />}>
-        <Route path="/dashboard" element={user?.role === "admin" ? <Dashboard /> : <Navigate to="/" />} />
-        <Route path="/add-product" element={user?.role === "admin" ? <AddProduct /> : <Navigate to="/" />} />
+        <Route
+          path="/dashboard"
+          element={user?.role === "admin" ? <Dashboard /> : <Navigate to="/" />}
+        />
+        <Route
+          path="/add-product"
+          element={user?.role === "admin" ? <AddProduct /> : <Navigate to="/" />}
+        />
       </Route>
 
+      {/* Fallback */}
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>
   );

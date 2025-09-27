@@ -9,10 +9,10 @@ const Dashboard = () => {
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const res = await axios.get("/products/my"); // fetch admin's products
+      const res = await axios.get("/products/my");
       setProducts(res.data);
     } catch (err) {
-      console.error("❌ Failed to fetch products:", err.response?.data || err.message);
+      console.error("Failed to fetch products:", err.response?.data || err.message);
       alert(err.response?.data?.message || "Failed to fetch your products");
     } finally {
       setLoading(false);
@@ -35,9 +35,7 @@ const Dashboard = () => {
     fetchProducts();
   }, []);
 
-  if (loading) {
-    return <div className="p-6 text-xl">Loading your products...</div>;
-  }
+  if (loading) return <div className="p-6 text-xl">Loading your products...</div>;
 
   return (
     <div className="p-6 space-y-4">
