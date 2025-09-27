@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import axios from "../api/axiosConfig.js";  // Make sure to import axios for API calls
 
 const EditProduct = () => {
   const { id } = useParams();
@@ -11,24 +12,14 @@ const EditProduct = () => {
     category: '',
     image: ''
   });
+  const [image, setImage] = useState(null); // For handling image uploads
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // TODO: Fetch product data by ID
-    // This is a placeholder - replace with your actual API call
     const fetchProduct = async () => {
       try {
-        // const response = await axios.get(`/api/products/${id}`);
-        // setProduct(response.data);
-        
-        // Placeholder data - remove this when you implement real API
-        setProduct({
-          name: 'Sample Product',
-          description: 'Sample Description',
-          price: '100',
-          category: 'sample',
-          image: ''
-        });
+        const response = await axios.get(`/api/products/${id}`); // Fetch product data by ID
+        setProduct(response.data);
         setLoading(false);
       } catch (error) {
         console.error('Error fetching product:', error);
@@ -41,22 +32,46 @@ const EditProduct = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Form data preparation
+    const formData = new FormData();
+    formData.append("name", product.name);
+    formData.append("description", product.description);
+    formData.append("price", product.price);
+    formData.append("category", product.category);
+
+    // Only append image if it exists
+    if (image) {
+      formData.append("image", image);
+    }
+
     try {
-      // TODO: Update product API call
-      // await axios.put(`/api/products/${id}`, product);
-      console.log('Product updated:', product);
-      navigate('/dashboard');
+      // Send updated product details to the server
+      await axios.put(`/api/products/${id}`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data", // Important for file uploads
+        },
+      });
+
+      alert("Product updated successfully!");
+      navigate("/dashboard");
     } catch (error) {
-      console.error('Error updating product:', error);
+      console.error("Error updating product:", error);
+      alert("Failed to update product");
     }
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setProduct(prev => ({
+    setProduct((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    setImage(file);  // Set the selected image file to state
   };
 
   if (loading) {
@@ -142,20 +157,30 @@ const EditProduct = () => {
               </select>
             </div>
 
+            {/* Image Upload Field */}
             <div>
               <label htmlFor="image" className="block text-sm font-medium text-gray-700 mb-2">
-                Image URL
+                Product Image
               </label>
               <input
-                type="url"
+                type="file"
                 id="image"
                 name="image"
-                value={product.image}
-                onChange={handleChange}
-                placeholder="https://example.com/image.jpg"
+                onChange={handleImageChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
+
+            {/* Display preview if image is selected */}
+            {image && (
+              <div className="mt-4">
+                <img
+                  src={URL.createObjectURL(image)}
+                  alt="Product Preview"
+                  className="w-full h-48 object-cover rounded-md"
+                />
+              </div>
+            )}
 
             <div className="flex gap-4 pt-4">
               <button

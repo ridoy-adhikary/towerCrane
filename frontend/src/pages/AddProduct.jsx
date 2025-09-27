@@ -5,22 +5,59 @@ import { useNavigate } from "react-router-dom";
 const AddProduct = () => {
   const navigate = useNavigate();
   const [form, setForm] = useState({
-    title: "",
+    name: "",
     description: "",
     price: "",
     category: "",
-    location: "",
-    image: ""
+    stock: ""
   });
+  const [image, setImage] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    setImage(file);  // Save the file to state
+  };
 
   const handleAdd = async (e) => {
     e.preventDefault();
+
+    // Basic form validation
+    if (!form.name || !form.description || !form.price || !form.category || !form.stock || !image) {
+      alert("All fields and image are required.");
+      return;
+    }
+
+    setLoading(true);
+
+    const formData = new FormData();
+    formData.append("name", form.name);
+    formData.append("description", form.description);
+    formData.append("price", form.price);
+    formData.append("category", form.category);
+    formData.append("stock", form.stock);
+    formData.append("image", image);  // Attach the image
+
     try {
-      await axios.post("/products", form);
+      const user = JSON.parse(localStorage.getItem("user"));
+      if (!user || user.role !== "admin") {
+        alert("You are not authorized to add products.");
+        return;
+      }
+
+      const res = await axios.post("/api/products", formData, {
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+          "Content-Type": "multipart/form-data",  // Important for file upload
+        },
+      });
+
       alert("Product added successfully!");
       navigate("/dashboard");
     } catch (err) {
       alert(err.response?.data?.message || "Failed to add product");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -30,43 +67,59 @@ const AddProduct = () => {
       <form className="space-y-4" onSubmit={handleAdd}>
         <input
           type="text"
-          placeholder="Title"
-          value={form.title}
-          onChange={(e) => setForm({ ...form, title: e.target.value })}
-          className="w-full border px-3 py-2 rounded-lg focus:ring-primary focus:border-primary"
+          placeholder="Product Name"
+          value={form.name}
+          onChange={(e) => setForm({ ...form, name: e.target.value })}
+          className="w-full border px-3 py-2 rounded-lg"
         />
         <textarea
-          placeholder="Description"
+          placeholder="Product Description"
           value={form.description}
           onChange={(e) => setForm({ ...form, description: e.target.value })}
-          className="w-full border px-3 py-2 rounded-lg focus:ring-primary focus:border-primary"
+          className="w-full border px-3 py-2 rounded-lg"
         />
         <input
           type="number"
           placeholder="Price"
           value={form.price}
           onChange={(e) => setForm({ ...form, price: e.target.value })}
-          className="w-full border px-3 py-2 rounded-lg focus:ring-primary focus:border-primary"
+          className="w-full border px-3 py-2 rounded-lg"
         />
         <input
           type="text"
           placeholder="Category"
           value={form.category}
           onChange={(e) => setForm({ ...form, category: e.target.value })}
-          className="w-full border px-3 py-2 rounded-lg focus:ring-primary focus:border-primary"
+          className="w-full border px-3 py-2 rounded-lg"
         />
         <input
-          type="text"
-          placeholder="Location"
-          value={form.location}
-          onChange={(e) => setForm({ ...form, location: e.target.value })}
-          className="w-full border px-3 py-2 rounded-lg focus:ring-primary focus:border-primary"
+          type="number"
+          placeholder="Stock Quantity"
+          value={form.stock}
+          onChange={(e) => setForm({ ...form, stock: e.target.value })}
+          className="w-full border px-3 py-2 rounded-lg"
         />
+
+        {/* File upload for image */}
+        <input
+          type="file"
+          onChange={handleImageChange}
+          className="w-full border px-3 py-2 rounded-lg"
+        />
+
+        {/* Show image preview if file is selected */}
+        {image && (
+          <div className="my-4">
+            <img src={URL.createObjectURL(image)} alt="Product Preview" className="w-full h-48 object-cover rounded-md" />
+          </div>
+        )}
+
         <button
           type="submit"
-          className="bg-primary text-red-600 px-4 py-2 rounded-lg font-bold hover:opacity-90"
+          className="bg-primary text-white px-4 py-2 rounded-lg font-bold hover:opacity-90"
+          disabled={loading}
         >
-          Add Product
+          {loading ? "Adding Product..." : "Add Product"}
         </button>
       </form>
     </div>

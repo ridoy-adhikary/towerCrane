@@ -60,7 +60,7 @@ function App() {
           headers: { Authorization: `Bearer ${user.token}` },
         }
       );
-      setCart(res.data.products || []);
+      setCart(res.data.products || []);  // Update cart state after adding product
       alert("Product added to cart!");
     } catch (err) {
       console.error("Failed to add to cart:", err);
