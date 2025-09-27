@@ -1,205 +1,171 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "../api/axiosConfig.js";  // Make sure to import axios for API calls
+import axios from "../api/axiosConfig.js";
 
 const EditProduct = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [product, setProduct] = useState({
-    name: '',
-    description: '',
-    price: '',
-    category: '',
-    image: ''
+    title: "",
+    description: "",
+    price: "",
+    category: "",
+    location: "",
+    images: [],
   });
-  const [image, setImage] = useState(null); // For handling image uploads
+  const [newImages, setNewImages] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const response = await axios.get(`/api/products/${id}`); // Fetch product data by ID
-        setProduct(response.data);
+        const res = await axios.get(`/products/${id}`);
+        setProduct(res.data);
         setLoading(false);
-      } catch (error) {
-        console.error('Error fetching product:', error);
+      } catch (err) {
+        console.error("Failed to fetch product:", err);
         setLoading(false);
       }
     };
-
     fetchProduct();
   }, [id]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    // Form data preparation
-    const formData = new FormData();
-    formData.append("name", product.name);
-    formData.append("description", product.description);
-    formData.append("price", product.price);
-    formData.append("category", product.category);
-
-    // Only append image if it exists
-    if (image) {
-      formData.append("image", image);
-    }
-
-    try {
-      // Send updated product details to the server
-      await axios.put(`/api/products/${id}`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data", // Important for file uploads
-        },
-      });
-
-      alert("Product updated successfully!");
-      navigate("/dashboard");
-    } catch (error) {
-      console.error("Error updating product:", error);
-      alert("Failed to update product");
-    }
-  };
-
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setProduct((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setProduct({ ...product, [e.target.name]: e.target.value });
   };
 
   const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    setImage(file);  // Set the selected image file to state
+    setNewImages(Array.from(e.target.files));
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-xl">Loading...</div>
-      </div>
-    );
-  }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const formData = new FormData();
+    formData.append("title", product.title);
+    formData.append("description", product.description);
+    formData.append("price", product.price);
+    formData.append("category", product.category);
+    formData.append("location", product.location);
+
+    newImages.forEach((img) => formData.append("images", img));
+
+    try {
+      const user = JSON.parse(localStorage.getItem("user"));
+      await axios.put(`/products/${id}`, formData, {
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      alert("Product updated successfully!");
+      navigate("/dashboard");
+    } catch (err) {
+      console.error("Failed to update product:", err);
+      alert(err.response?.data?.message || "Failed to update product");
+    }
+  };
+
+  const handleDelete = async () => {
+    if (window.confirm("Are you sure you want to delete this product?")) {
+      try {
+        const user = JSON.parse(localStorage.getItem("user"));
+        await axios.delete(`/products/${id}`, {
+          headers: { Authorization: `Bearer ${user.token}` },
+        });
+        alert("Product deleted successfully!");
+        navigate("/dashboard");
+      } catch (err) {
+        console.error("Failed to delete product:", err);
+        alert(err.response?.data?.message || "Failed to delete product");
+      }
+    }
+  };
+
+  if (loading) return <div className="text-center mt-10">Loading...</div>;
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="container mx-auto px-4">
-        <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-6">
-          <h1 className="text-2xl font-bold text-gray-900 mb-6">Edit Product</h1>
-          
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                Product Name
-              </label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                value={product.name}
-                onChange={handleChange}
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
+    <div className="p-6 max-w-2xl mx-auto bg-gray-50 rounded-lg shadow-md">
+      <h2 className="text-3xl font-bold mb-6">Edit Product</h2>
+      <form className="space-y-4" onSubmit={handleSubmit}>
+        <input
+          type="text"
+          name="title"
+          value={product.title}
+          onChange={handleChange}
+          placeholder="Product Title"
+          className="w-full border px-3 py-2 rounded-lg"
+          required
+        />
+        <textarea
+          name="description"
+          value={product.description}
+          onChange={handleChange}
+          placeholder="Description"
+          className="w-full border px-3 py-2 rounded-lg"
+          required
+        />
+        <input
+          type="number"
+          name="price"
+          value={product.price}
+          onChange={handleChange}
+          placeholder="Price"
+          className="w-full border px-3 py-2 rounded-lg"
+          required
+        />
+        <input
+          type="text"
+          name="category"
+          value={product.category}
+          onChange={handleChange}
+          placeholder="Category"
+          className="w-full border px-3 py-2 rounded-lg"
+          required
+        />
+        <input
+          type="text"
+          name="location"
+          value={product.location}
+          onChange={handleChange}
+          placeholder="Location"
+          className="w-full border px-3 py-2 rounded-lg"
+          required
+        />
 
-            <div>
-              <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
-                Description
-              </label>
-              <textarea
-                id="description"
-                name="description"
-                value={product.description}
-                onChange={handleChange}
-                rows="4"
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
+        <input
+          type="file"
+          multiple
+          onChange={handleImageChange}
+          className="w-full border px-3 py-2 rounded-lg"
+        />
 
-            <div>
-              <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-2">
-                Price
-              </label>
-              <input
-                type="number"
-                id="price"
-                name="price"
-                value={product.price}
-                onChange={handleChange}
-                min="0"
-                step="0.01"
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
+        {/* Show existing images */}
+        {product.images.length > 0 && (
+          <div className="grid grid-cols-2 gap-2 mt-2">
+            {product.images.map((img, i) => (
+              <img key={i} src={img} alt={`product-${i}`} className="w-full h-32 object-cover rounded-md" />
+            ))}
+          </div>
+        )}
 
-            <div>
-              <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-2">
-                Category
-              </label>
-              <select
-                id="category"
-                name="category"
-                value={product.category}
-                onChange={handleChange}
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">Select a category</option>
-                <option value="cranes">Cranes</option>
-                <option value="trucks">Trucks</option>
-                <option value="excavators">Excavators</option>
-                <option value="bulldozers">Bulldozers</option>
-                <option value="other">Other</option>
-              </select>
-            </div>
+        {/* Show previews of new images */}
+        {newImages.length > 0 && (
+          <div className="grid grid-cols-2 gap-2 mt-2">
+            {newImages.map((img, i) => (
+              <img key={i} src={URL.createObjectURL(img)} alt={`new-${i}`} className="w-full h-32 object-cover rounded-md" />
+            ))}
+          </div>
+        )}
 
-            {/* Image Upload Field */}
-            <div>
-              <label htmlFor="image" className="block text-sm font-medium text-gray-700 mb-2">
-                Product Image
-              </label>
-              <input
-                type="file"
-                id="image"
-                name="image"
-                onChange={handleImageChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-
-            {/* Display preview if image is selected */}
-            {image && (
-              <div className="mt-4">
-                <img
-                  src={URL.createObjectURL(image)}
-                  alt="Product Preview"
-                  className="w-full h-48 object-cover rounded-md"
-                />
-              </div>
-            )}
-
-            <div className="flex gap-4 pt-4">
-              <button
-                type="submit"
-                className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                Update Product
-              </button>
-              <button
-                type="button"
-                onClick={() => navigate('/dashboard')}
-                className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500"
-              >
-                Cancel
-              </button>
-            </div>
-          </form>
+        <div className="flex gap-4 pt-4">
+          <button type="submit" className="flex-1 bg-blue-600 text-white py-2 rounded-lg">
+            Update Product
+          </button>
+          <button type="button" onClick={handleDelete} className="flex-1 bg-red-500 text-white py-2 rounded-lg">
+            Delete Product
+          </button>
         </div>
-      </div>
+      </form>
     </div>
   );
 };

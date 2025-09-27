@@ -5,50 +5,56 @@ import { useNavigate } from "react-router-dom";
 const AddProduct = () => {
   const navigate = useNavigate();
   const [form, setForm] = useState({
-    name: "",
+    title: "",
     description: "",
     price: "",
     category: "",
-    stock: ""
+    location: "",
   });
-  const [image, setImage] = useState(null);
+  const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    setImage(file);  // Save the file to state
+    const files = Array.from(e.target.files);
+    setImages(files);
   };
 
   const handleAdd = async (e) => {
     e.preventDefault();
 
-    // Basic form validation
-    if (!form.name || !form.description || !form.price || !form.category || !form.stock || !image) {
-      alert("All fields and image are required.");
+    if (
+      !form.title ||
+      !form.description ||
+      !form.price ||
+      !form.category ||
+      !form.location ||
+      images.length === 0
+    ) {
+      alert("All fields and at least one image are required.");
       return;
     }
 
     setLoading(true);
-
     const formData = new FormData();
-    formData.append("name", form.name);
+    formData.append("title", form.title);
     formData.append("description", form.description);
     formData.append("price", form.price);
     formData.append("category", form.category);
-    formData.append("stock", form.stock);
-    formData.append("image", image);  // Attach the image
+    formData.append("location", form.location);
+    images.forEach((img) => formData.append("images", img));
 
     try {
       const user = JSON.parse(localStorage.getItem("user"));
       if (!user || user.role !== "admin") {
         alert("You are not authorized to add products.");
+        setLoading(false);
         return;
       }
 
-      const res = await axios.post("/api/products", formData, {
+      await axios.post("/products", formData, {
         headers: {
+          "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${user.token}`,
-          "Content-Type": "multipart/form-data",  // Important for file upload
         },
       });
 
@@ -62,66 +68,84 @@ const AddProduct = () => {
   };
 
   return (
-    <div className="p-6 max-w-2xl mx-auto bg-blue-300 shadow-md rounded-lg">
-      <h2 className="text-3xl font-bold mb-6">Add Product</h2>
-      <form className="space-y-4" onSubmit={handleAdd}>
-        <input
-          type="text"
-          placeholder="Product Name"
-          value={form.name}
-          onChange={(e) => setForm({ ...form, name: e.target.value })}
-          className="w-full border px-3 py-2 rounded-lg"
-        />
-        <textarea
-          placeholder="Product Description"
-          value={form.description}
-          onChange={(e) => setForm({ ...form, description: e.target.value })}
-          className="w-full border px-3 py-2 rounded-lg"
-        />
-        <input
-          type="number"
-          placeholder="Price"
-          value={form.price}
-          onChange={(e) => setForm({ ...form, price: e.target.value })}
-          className="w-full border px-3 py-2 rounded-lg"
-        />
-        <input
-          type="text"
-          placeholder="Category"
-          value={form.category}
-          onChange={(e) => setForm({ ...form, category: e.target.value })}
-          className="w-full border px-3 py-2 rounded-lg"
-        />
-        <input
-          type="number"
-          placeholder="Stock Quantity"
-          value={form.stock}
-          onChange={(e) => setForm({ ...form, stock: e.target.value })}
-          className="w-full border px-3 py-2 rounded-lg"
-        />
+    <div className="min-h-screen bg-gradient-to-br from-blue-100 via-purple-50 to-pink-50 flex items-center justify-center p-6">
+      <div className="w-full max-w-3xl bg-white shadow-2xl rounded-2xl p-10">
+        <h2 className="text-4xl font-extrabold text-gray-800 mb-8 text-center">
+          Add a New Product
+        </h2>
 
-        {/* File upload for image */}
-        <input
-          type="file"
-          onChange={handleImageChange}
-          className="w-full border px-3 py-2 rounded-lg"
-        />
-
-        {/* Show image preview if file is selected */}
-        {image && (
-          <div className="my-4">
-            <img src={URL.createObjectURL(image)} alt="Product Preview" className="w-full h-48 object-cover rounded-md" />
+        <form className="space-y-6" onSubmit={handleAdd}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <input
+              type="text"
+              placeholder="Product Title"
+              value={form.title}
+              onChange={(e) => setForm({ ...form, title: e.target.value })}
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 transition"
+            />
+            <input
+              type="number"
+              placeholder="Price ($)"
+              value={form.price}
+              onChange={(e) => setForm({ ...form, price: e.target.value })}
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 transition"
+            />
           </div>
-        )}
 
-        <button
-          type="submit"
-          className="bg-primary text-white px-4 py-2 rounded-lg font-bold hover:opacity-90"
-          disabled={loading}
-        >
-          {loading ? "Adding Product..." : "Add Product"}
-        </button>
-      </form>
+          <input
+            type="text"
+            placeholder="Category"
+            value={form.category}
+            onChange={(e) => setForm({ ...form, category: e.target.value })}
+            className="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 transition"
+          />
+          <input
+            type="text"
+            placeholder="Location"
+            value={form.location}
+            onChange={(e) => setForm({ ...form, location: e.target.value })}
+            className="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 transition"
+          />
+          <textarea
+            placeholder="Product Description"
+            value={form.description}
+            onChange={(e) => setForm({ ...form, description: e.target.value })}
+            rows="5"
+            className="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 transition resize-none"
+          />
+
+          <div>
+            <label className="block mb-2 font-medium text-gray-700">Upload Images</label>
+            <input
+              type="file"
+              multiple
+              onChange={handleImageChange}
+              className="w-full px-4 py-2 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 transition cursor-pointer"
+            />
+          </div>
+
+          {images.length > 0 && (
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
+              {images.map((img, index) => (
+                <img
+                  key={index}
+                  src={URL.createObjectURL(img)}
+                  alt={`Preview ${index + 1}`}
+                  className="w-full h-40 object-cover rounded-2xl shadow-md border"
+                />
+              ))}
+            </div>
+          )}
+
+          <button
+            type="submit"
+            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-2xl shadow-lg transition transform hover:scale-105"
+            disabled={loading}
+          >
+            {loading ? "Adding Product..." : "Add Product"}
+          </button>
+        </form>
+      </div>
     </div>
   );
 };

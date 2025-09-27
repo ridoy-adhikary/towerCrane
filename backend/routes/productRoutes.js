@@ -1,4 +1,6 @@
 import express from "express";
+import multer from "multer";
+import Product from "../models/Product.js";
 import {
   getProducts,
   addProduct,
@@ -10,15 +12,41 @@ import { protect, adminOnly } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-// ✅ Public route → anyone can view products
+// Multer storage config for image uploads
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "uploads/"); // save inside /uploads folder
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + "-" + file.originalname.replace(/\s+/g, "_"));
+  },
+});
+
+const upload = multer({
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // max 5MB per image
+});
+
+// Public route → get all products
 router.get("/", getProducts);
 
-// ✅ Admin only routes for managing products
-router.post("/", protect, adminOnly, addProduct);  // Admin: Add product
-router.put("/:id", protect, adminOnly, updateProduct);  // Admin: Edit product
-router.delete("/:id", protect, adminOnly, deleteProduct);  // Admin: Delete product
+// Admin only → get only logged-in admin's products
+router.get("/my", protect, adminOnly, async (req, res) => {
+  try {
+    const products = await Product.find({ user: req.user._id });
+    res.json(products);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to fetch your products" });
+  }
+});
 
-// ✅ Buyer feature → contact seller
-router.get("/:id/contact", protect, contactSeller);  // Buyer: Contact product seller
+// Admin only routes
+router.post("/", protect, adminOnly, upload.array("images", 5), addProduct);
+router.put("/:id", protect, adminOnly, upload.array("images", 5), updateProduct);
+router.delete("/:id", protect, adminOnly, deleteProduct);
+
+// Buyer route → contact seller
+router.get("/:id/contact", protect, contactSeller);
 
 export default router;
