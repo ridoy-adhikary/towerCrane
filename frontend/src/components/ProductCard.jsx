@@ -3,14 +3,19 @@ import { useNavigate } from "react-router-dom";
 
 const ProductCard = ({ product, onEdit, onDelete }) => {
   const navigate = useNavigate();
+
+  // ✅ Fix: prepend server URL to product image
   const imageUrl =
     product.images && product.images.length > 0
-      ? product.images[0]
+      ? `http://localhost:5000/${product.images[0]}`
       : "https://via.placeholder.com/80";
 
   return (
     <div className="bg-white shadow-md rounded-lg p-4 flex justify-between items-center hover:shadow-xl transition-shadow">
-      <div className="flex items-center gap-4 cursor-pointer" onClick={() => navigate(`/products/${product._id}`)}>
+      <div
+        className="flex items-center gap-4 cursor-pointer"
+        onClick={() => navigate(`/products/${product._id}`)}
+      >
         <img
           src={imageUrl}
           alt={product.title}
