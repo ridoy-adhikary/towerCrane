@@ -28,10 +28,6 @@ const upload = multer({
   limits: { fileSize: 5 * 1024 * 1024 }, // max 5MB per image
 });
 
-// Public routes
-router.get("/", getProducts);
-router.get("/:id", getProductById); // ✅ fetch single product by id
-
 // Admin only → get only logged-in admin's products
 router.get("/my", protect, adminOnly, async (req, res) => {
   try {
@@ -42,6 +38,10 @@ router.get("/my", protect, adminOnly, async (req, res) => {
     res.status(500).json({ message: "Failed to fetch your products" });
   }
 });
+
+// Public routes
+router.get("/", getProducts);
+router.get("/:id", getProductById); // ✅ fetch single product by id
 
 // Admin only routes
 router.post("/", protect, adminOnly, upload.array("images", 5), addProduct);
