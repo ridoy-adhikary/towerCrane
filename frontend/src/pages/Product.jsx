@@ -59,6 +59,16 @@ const Product = ({ user, onAddToCart }) => {
       maximumFractionDigits: 0,
     }).format(price);
 
+  // 🔧 Helper function to fix image URL
+  const getImageUrl = (imagePath) => {
+    if (!imagePath) return "https://via.placeholder.com/300";
+
+    // Remove any leading slash to normalize
+    const cleanPath = imagePath.startsWith("/") ? imagePath.slice(1) : imagePath;
+
+    return `http://localhost:5000/${cleanPath}`;
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -105,7 +115,7 @@ const Product = ({ user, onAddToCart }) => {
             {filteredProducts.map((product) => {
               const imageUrl =
                 product.images && product.images.length > 0
-                  ? `http://localhost:5000/${product.images[0]}`
+                  ? getImageUrl(product.images[0]) // 🔧 use helper here
                   : "https://via.placeholder.com/300";
 
               return (

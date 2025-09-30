@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "../api/axiosConfig.js"; // Make sure this points to your axios config
+import axios from "../api/axiosConfig.js";
 
 const ProductDetail = ({ user, onAddToCart }) => {
   const { id } = useParams();
@@ -14,7 +14,7 @@ const ProductDetail = ({ user, onAddToCart }) => {
     const fetchProduct = async () => {
       try {
         setLoading(true);
-        const res = await axios.get(`/products/${id}`); // Match backend route exactly
+        const res = await axios.get(`/products/${id}`);
         setProduct(res.data);
       } catch (error) {
         console.error("Failed to fetch product:", error.response?.data || error.message);
@@ -42,9 +42,9 @@ const ProductDetail = ({ user, onAddToCart }) => {
     setAddingToCart(true);
 
     try {
-      const res = await axios.post("/cart", { productId: product._id, quantity: 1 });
+      await axios.post("/cart", { productId: product._id, quantity: 1 });
       if (onAddToCart) onAddToCart(product);
-      alert(`${product.name} added to cart!`);
+      alert(`${product.title} added to cart!`);
     } catch (error) {
       console.error("Error adding to cart:", error.response?.data || error.message);
       alert("Failed to add item to cart");
@@ -83,6 +83,11 @@ const ProductDetail = ({ user, onAddToCart }) => {
     );
   }
 
+  // ✅ Build image URLs properly
+  const images = product.images?.map((img) =>
+    img.startsWith("http") ? img : `http://localhost:5000${img}`
+  );
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-6 py-8">
@@ -90,18 +95,20 @@ const ProductDetail = ({ user, onAddToCart }) => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div>
             <img
-              src={product.images?.[selectedImage] || product.image}
-              alt={product.name}
+              src={images?.[selectedImage]}
+              alt={product.title}
               className="w-full h-96 object-cover rounded-lg mb-4"
             />
             <div className="grid grid-cols-4 gap-2">
-              {product.images?.map((img, idx) => (
+              {images?.map((img, idx) => (
                 <button
                   key={idx}
                   onClick={() => setSelectedImage(idx)}
-                  className={`border-2 rounded-lg overflow-hidden ${selectedImage === idx ? "border-blue-500" : "border-gray-300"}`}
+                  className={`border-2 rounded-lg overflow-hidden ${
+                    selectedImage === idx ? "border-blue-500" : "border-gray-300"
+                  }`}
                 >
-                  <img src={img} alt={product.name} className="w-full h-20 object-cover" />
+                  <img src={img} alt={product.title} className="w-full h-20 object-cover" />
                 </button>
               ))}
             </div>
@@ -109,9 +116,11 @@ const ProductDetail = ({ user, onAddToCart }) => {
 
           {/* Product Info */}
           <div>
-            <h1 className="text-3xl font-bold mb-4">{product.name}</h1>
+            <h1 className="text-3xl font-bold mb-4">{product.title}</h1>
             <div className="text-2xl text-green-600 font-bold mb-2">{formatPrice(product.price)}</div>
             <p className="text-gray-600 mb-4">{product.description}</p>
+            <p className="text-gray-500 mb-4">Category: {product.category}</p>
+            <p className="text-gray-500 mb-6">Location: {product.location}</p>
 
             <button
               onClick={handleAddToCart}
@@ -124,8 +133,6 @@ const ProductDetail = ({ user, onAddToCart }) => {
             </button>
           </div>
         </div>
-
-        {/* Optional: More details like specifications, features, seller info */}
       </div>
     </div>
   );

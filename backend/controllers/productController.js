@@ -10,6 +10,19 @@ export const getProducts = async (req, res) => {
   }
 };
 
+// ✅ Get product by ID
+export const getProductById = async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id).populate("user", "name email");
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+    res.json(product);
+  } catch (err) {
+    res.status(500).json({ message: "Server error while fetching product" });
+  }
+};
+
 // Add product (multiple images)
 export const addProduct = async (req, res) => {
   const { title, description, price, category, location } = req.body;

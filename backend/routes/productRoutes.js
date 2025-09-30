@@ -3,6 +3,7 @@ import multer from "multer";
 import Product from "../models/Product.js";
 import {
   getProducts,
+  getProductById,   // ✅ new controller
   addProduct,
   updateProduct,
   deleteProduct,
@@ -27,8 +28,9 @@ const upload = multer({
   limits: { fileSize: 5 * 1024 * 1024 }, // max 5MB per image
 });
 
-// Public route → get all products
+// Public routes
 router.get("/", getProducts);
+router.get("/:id", getProductById); // ✅ fetch single product by id
 
 // Admin only → get only logged-in admin's products
 router.get("/my", protect, adminOnly, async (req, res) => {
