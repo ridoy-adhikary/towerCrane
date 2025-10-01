@@ -125,7 +125,7 @@ const Product = ({ user, onAddToCart }) => {
                 >
                   <img
                     src={imageUrl}
-                    alt={product.title}
+                    alt={product.title || "Product image"}
                     className="w-full h-48 object-cover"
                   />
                   <div className="p-4">
