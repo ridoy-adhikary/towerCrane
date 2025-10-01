@@ -8,11 +8,14 @@ const ProductPage = ({ user, onAddToCart }) => {
   const [loading, setLoading] = useState(true);
   const [addingToCart, setAddingToCart] = useState(null);
 
+  // Backend base URL - adjust this to match your backend
+  const API_BASE_URL = "http://localhost:5000";
+
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        const res = await axios.get("/products"); // fetch all products from backend
+        const res = await axios.get("/products");
         setProducts(res.data);
       } catch (err) {
         console.error("Failed to fetch products:", err.response?.data || err.message);
@@ -44,16 +47,34 @@ const ProductPage = ({ user, onAddToCart }) => {
     setAddingToCart(product._id);
 
     try {
+      // Fix: Pass product ID instead of entire product object
       if (onAddToCart) {
-        onAddToCart(product);
+        await onAddToCart(product._id);
       }
-      alert(`${product.title} added to cart!`);
     } catch (err) {
       console.error("Error adding to cart:", err);
       alert("Failed to add item to cart");
     } finally {
       setAddingToCart(null);
     }
+  };
+
+  // Helper function to get the correct image URL
+  const getImageUrl = (imagePath) => {
+    if (!imagePath) return "https://via.placeholder.com/400x300";
+    
+    // If it's already a full URL, return as is
+    if (imagePath.startsWith('http')) {
+      return imagePath;
+    }
+    
+    // If it starts with /uploads, prepend base URL
+    if (imagePath.startsWith('/uploads')) {
+      return `${API_BASE_URL}${imagePath}`;
+    }
+    
+    // If it's just a filename, add /uploads/ prefix
+    return `${API_BASE_URL}/uploads/${imagePath}`;
   };
 
   const formatPrice = (price) => {
@@ -92,9 +113,13 @@ const ProductPage = ({ user, onAddToCart }) => {
           <div key={product._id} className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow overflow-hidden">
             <div className="relative">
               <img
-                src={product.images?.[0] || "https://via.placeholder.com/400x300"}
+                src={getImageUrl(product.images?.[0])}
                 alt={product.title}
                 className="w-full h-48 object-cover"
+                onError={(e) => {
+                  console.error('Image failed to load:', product.images?.[0]);
+                  e.target.src = "https://via.placeholder.com/400x300?text=Image+Not+Found";
+                }}
               />
               <div className="absolute top-2 right-2 bg-blue-600 text-white px-2 py-1 rounded text-xs font-semibold">
                 {product.condition || "N/A"}
